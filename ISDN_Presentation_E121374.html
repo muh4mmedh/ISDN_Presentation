@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ISDN Management System - Coursework Presentation</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  
+  body { font-family: 'Inter', sans-serif; background: #1a1a2e; color: #fff; overflow: hidden; }
+
+  .slides-grid {
+    display: block;
+    width: 100vw;
+    height: 100vh;
+  }
+
+  .slide {
+    width: 100vw; min-height: 100vh; height: 100vh; padding: 60px 80px;
+    display: none; flex-direction: column; justify-content: center;
+    page-break-after: always; position: relative;
+    border-radius: 0;
+    overflow-y: auto;
+    box-shadow: none;
+  }
+
+  .slide.active {
+    display: flex;
+  }
+
+  .slide::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 6px;
+    background: linear-gradient(90deg, #321fdb, #6c63ff, #321fdb);
+  }
+
+  .slide-title { font-size: 42px; font-weight: 800; margin-bottom: 30px; color: #fff; }
+  .slide-subtitle { font-size: 22px; color: #b0b0d0; margin-bottom: 40px; line-height: 1.5; }
+
+  .title-slide {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    text-align: center; align-items: center;
+  }
+  .title-slide .slide-title { font-size: 52px; margin-bottom: 15px; }
+  .title-slide .slide-subtitle { font-size: 24px; }
+
+  .content-slide { background: #16213e; }
+
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; }
+  .three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 30px; }
+
+  .card {
+    background: rgba(255,255,255,0.06); border-radius: 16px; padding: 30px;
+    border: 1px solid rgba(255,255,255,0.1); transition: transform 0.3s;
+  }
+  .card:hover { transform: translateY(-4px); }
+  .card h3 { font-size: 20px; margin-bottom: 12px; color: #6c63ff; }
+  .card p, .card li { font-size: 15px; line-height: 1.7; color: #c0c0e0; }
+  .card ul { padding-left: 20px; }
+  .card ul li { margin-bottom: 6px; }
+
+  .icon { font-size: 36px; margin-bottom: 15px; display: block; }
+
+  .tag {
+    display: inline-block; background: rgba(108,99,255,0.2); color: #6c63ff;
+    padding: 4px 14px; border-radius: 20px; font-size: 13px; font-weight: 600;
+    margin: 3px;
+  }
+
+  .highlight-box {
+    background: linear-gradient(135deg, rgba(50,31,219,0.2), rgba(108,99,255,0.1));
+    border-left: 4px solid #321fdb; padding: 25px; border-radius: 12px; margin: 15px 0;
+  }
+
+  .student-info { margin-top: 30px; font-size: 20px; color: #8888bb; }
+  .student-info strong { color: #fff; }
+
+  .badge {
+    display: inline-block; background: #321fdb; color: #fff;
+    padding: 8px 20px; border-radius: 30px; font-weight: 600; font-size: 14px;
+    margin-top: 20px;
+  }
+
+  .link-placeholder {
+    background: rgba(255,193,7,0.15); border: 2px dashed #ffc107;
+    border-radius: 12px; padding: 20px; text-align: center;
+    color: #ffc107; font-size: 16px; margin: 15px 0;
+  }
+
+  .img-placeholder {
+    background: rgba(108,99,255,0.1); border: 2px dashed rgba(108,99,255,0.3);
+    border-radius: 12px; padding: 40px; text-align: center; color: #6c63ff;
+    font-size: 16px; margin: 15px 0; min-height: 200px;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  .img-placeholder img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    border-radius: 8px;
+  }
+
+  .tech-stack { display: flex; flex-wrap: wrap; gap: 10px; margin: 15px 0; }
+
+  .slide-number {
+    position: absolute; bottom: 25px; right: 40px;
+    font-size: 14px; color: #555; font-weight: 600;
+  }
+
+  .presentation-ui {
+    position: fixed;
+    top: 16px;
+    right: 20px;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    z-index: 999;
+  }
+
+  .presentation-counter {
+    background: rgba(0, 0, 0, 0.45);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 6px 12px;
+    border-radius: 999px;
+    font-size: 13px;
+    color: #e5e5ff;
+    backdrop-filter: blur(4px);
+  }
+
+  .presentation-btn {
+    background: rgba(0, 0, 0, 0.45);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #fff;
+    width: 34px;
+    height: 34px;
+    border-radius: 999px;
+    cursor: pointer;
+    font-size: 18px;
+    line-height: 1;
+  }
+
+  .presentation-hint {
+    position: fixed;
+    left: 20px;
+    bottom: 16px;
+    z-index: 999;
+    font-size: 12px;
+    color: #b8b8d9;
+    background: rgba(0, 0, 0, 0.35);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    padding: 6px 10px;
+    border-radius: 8px;
+  }
+
+  .divider { width: 80px; height: 4px; background: #321fdb; border-radius: 2px; margin: 15px 0; }
+
+  table { width: 100%; border-collapse: collapse; margin: 15px 0; }
+  th { background: rgba(50,31,219,0.3); padding: 12px 15px; text-align: left; font-size: 14px; }
+  td { padding: 10px 15px; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 14px; color: #c0c0e0; }
+
+  @media print {
+    body { overflow: visible; }
+    .slides-grid {
+      display: block;
+      padding: 0;
+      height: auto;
+    }
+    .slide {
+      display: flex !important;
+      page-break-after: always;
+      min-height: 100vh;
+      height: auto;
+      overflow: visible;
+    }
+    .presentation-ui,
+    .presentation-hint {
+      display: none;
+    }
+  }
+</style>
+</head>
+<body>
+<div class="presentation-ui">
+  <button id="prevSlideBtn" class="presentation-btn" type="button" aria-label="Previous slide">&#8249;</button>
+  <div id="slideCounter" class="presentation-counter">1 / 15</div>
+  <button id="nextSlideBtn" class="presentation-btn" type="button" aria-label="Next slide">&#8250;</button>
+</div>
+<div class="presentation-hint">Use Left/Right arrow keys</div>
+<div class="slides-grid">
+
+<!-- SLIDE 1: Title Slide -->
+<div class="slide title-slide">
+  <div class="slide-title">ISDN Management System</div>
+  <div class="slide-subtitle">
+    Integrated Stock, Distribution & Networking Management<br/>
+    A Comprehensive Inventory & Business Process Automation Platform
+  </div>
+  <div class="divider" style="margin: 15px auto;"></div>
+  <div class="student-info">
+    <strong>Mohammed Rahumatulla</strong><br/>
+    Student ID: E121374<br/>
+    Esoft Metro Campus
+  </div>
+  <div class="badge">Individual Coursework</div>
+  <span class="slide-number">1</span>
+</div>
+
+<!-- SLIDE 2: Agenda -->
+<div class="slide content-slide">
+  <div class="slide-title">Agenda</div>
+  <div class="divider"></div>
+  <div class="two-col" style="margin-top: 20px;">
+    <div>
+      <div class="card">
+        <h3>Part 1</h3>
+        <ul>
+          <li>Project Overview & Problem Statement</li>
+          <li>System Architecture (3-Tier)</li>
+          <li>Technology Stack</li>
+          <li>Database Design & ER Diagram</li>
+          <li>Key Features & Modules</li>
+        </ul>
+      </div>
+    </div>
+    <div>
+      <div class="card">
+        <h3>Part 2</h3>
+        <ul>
+          <li>Customer Portal (New Feature)</li>
+          <li>Security & Authentication</li>
+          <li>UI/UX Design</li>
+          <li>Testing & Validation</li>
+          <li>Live Demo & GitHub</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <span class="slide-number">2</span>
+</div>
+
+<!-- SLIDE 3: Problem Statement -->
+<div class="slide content-slide">
+  <div class="slide-title">Problem Statement</div>
+  <div class="divider"></div>
+  <div class="highlight-box">
+    <p style="font-size: 18px; line-height: 1.8;">
+      Small-to-medium enterprises in Sri Lanka rely on <strong>manual spreadsheets</strong> and 
+      <strong>disconnected legacy tools</strong> for inventory tracking, invoicing, and financial reporting. 
+      This leads to <strong>stock discrepancies, delayed procurement, revenue leakage</strong>, and 
+      poor decision-making due to lack of real-time data visibility.
+    </p>
+  </div>
+  <div class="two-col" style="margin-top: 30px;">
+    <div class="card">
+      <h3>🎯 Objectives</h3>
+      <ul>
+        <li>Automate end-to-end inventory lifecycle</li>
+        <li>Real-time multi-location stock tracking</li>
+        <li>Streamline procurement to payment cycle</li>
+        <li>Customer self-service portal for orders</li>
+        <li>Role-based access with audit trails</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>💡 Solution</h3>
+      <ul>
+        <li>Web-based 3-tier architecture</li>
+        <li>Database-centric business logic (SPs)</li>
+        <li>Real-time WebSocket notifications</li>
+        <li>Dual authentication (Staff + Customer)</li>
+        <li>Comprehensive reporting dashboard</li>
+      </ul>
+    </div>
+  </div>
+  <span class="slide-number">3</span>
+</div>
+
+<!-- SLIDE 4: System Architecture -->
+<div class="slide content-slide">
+  <div class="slide-title">System Architecture — 3-Tier</div>
+  <div class="divider"></div>
+  <div class="img-placeholder">
+    <img src="3tier architecture drawio-3-Tier Architecture.drawio.png" alt="3-tier architecture diagram" />
+  </div>
+  <div class="three-col" style="margin-top: 20px;">
+    <div class="card">
+      <h3>Presentation Tier</h3>
+      <p>Next.js SSR, CoreUI Pro, Redux state management, responsive Bootstrap 5</p>
+    </div>
+    <div class="card">
+      <h3>Application Tier</h3>
+      <p>Go Fiber REST API, JWT authentication, WebSocket messaging, GORM ORM</p>
+    </div>
+    <div class="card">
+      <h3>Data Tier</h3>
+      <p>MS SQL Server, 50+ tables, 40+ stored procedures, 80+ table-valued functions</p>
+    </div>
+  </div>
+  <span class="slide-number">4</span>
+</div>
+
+<!-- SLIDE 5: Technology Stack -->
+<div class="slide content-slide">
+  <div class="slide-title">Technology Stack</div>
+  <div class="divider"></div>
+  <div class="two-col">
+    <div>
+      <div class="card">
+        <h3>Frontend</h3>
+        <div class="tech-stack">
+          <span class="tag">Next.js 14</span>
+          <span class="tag">React 18</span>
+          <span class="tag">CoreUI Pro</span>
+          <span class="tag">Redux</span>
+          <span class="tag">Ant Design</span>
+          <span class="tag">Axios</span>
+          <span class="tag">SweetAlert2</span>
+          <span class="tag">Chart.js</span>
+          <span class="tag">SCSS</span>
+        </div>
+      </div>
+      <div class="card" style="margin-top: 20px;">
+        <h3>Backend</h3>
+        <div class="tech-stack">
+          <span class="tag">Go 1.21</span>
+          <span class="tag">Fiber v2</span>
+          <span class="tag">GORM</span>
+          <span class="tag">JWT (HS256)</span>
+          <span class="tag">WebSocket</span>
+          <span class="tag">bcrypt</span>
+          <span class="tag">AWS S3</span>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="card">
+        <h3>Database</h3>
+        <div class="tech-stack">
+          <span class="tag">MS SQL Server</span>
+          <span class="tag">Stored Procedures</span>
+          <span class="tag">Table-Valued Functions</span>
+          <span class="tag">JSON @Dataset Pattern</span>
+        </div>
+      </div>
+      <div class="card" style="margin-top: 20px;">
+        <h3>DevOps & Tools</h3>
+        <div class="tech-stack">
+          <span class="tag">Git / GitHub</span>
+          <span class="tag">VS Code</span>
+          <span class="tag">Postman</span>
+          <span class="tag">Draw.io</span>
+          <span class="tag">ChromeDP</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <span class="slide-number">5</span>
+</div>
+
+<!-- SLIDE 6: ER Diagram -->
+<div class="slide content-slide">
+  <div class="slide-title">Database Design — ER Diagram</div>
+  <div class="divider"></div>
+  <div class="img-placeholder" style="min-height: 400px;">
+    <img src="3tier architecture drawio-Er diagram.drawio.png" alt="ER diagram" />
+  </div>
+  <p style="color: #8888bb; margin-top: 15px; font-size: 15px;">
+    50+ tables following <code style="color: #6c63ff;">tblMast*</code> (master data) and 
+    <code style="color: #6c63ff;">tblTxn*</code> (transactions) naming convention
+  </p>
+  <span class="slide-number">6</span>
+</div>
+
+<!-- SLIDE 7: Key Modules -->
+<div class="slide content-slide">
+  <div class="slide-title">Core Modules</div>
+  <div class="divider"></div>
+  <div class="three-col">
+    <div class="card">
+      <span class="icon">📦</span>
+      <h3>Inventory Management</h3>
+      <ul>
+        <li>Multi-location stock tracking</li>
+        <li>Barcode scanning support</li>
+        <li>Physical stock reconciliation</li>
+        <li>Item discard & damage tracking</li>
+        <li>Category/subcategory hierarchy</li>
+      </ul>
+    </div>
+    <div class="card">
+      <span class="icon">🛒</span>
+      <h3>Procurement</h3>
+      <ul>
+        <li>Purchase order management</li>
+        <li>Auto-PO generation</li>
+        <li>GRN / Sundry GRN processing</li>
+        <li>Supplier management</li>
+        <li>Gate pass in/out tracking</li>
+      </ul>
+    </div>
+    <div class="card">
+      <span class="icon">💰</span>
+      <h3>Sales & Distribution</h3>
+      <ul>
+        <li>Invoice generation</li>
+        <li>Proforma invoices & receipts</li>
+        <li>Quotation management</li>
+        <li>Sales returns processing</li>
+        <li>Delivery note tracking</li>
+      </ul>
+    </div>
+  </div>
+  <div class="three-col" style="margin-top: 20px;">
+    <div class="card">
+      <span class="icon">📊</span>
+      <h3>Finance & Accounting</h3>
+      <ul>
+        <li>Double-entry voucher system</li>
+        <li>Payment vouchers</li>
+        <li>Cheque register</li>
+        <li>Debit/credit notes</li>
+        <li>Allocation management</li>
+      </ul>
+    </div>
+    <div class="card">
+      <span class="icon">🔐</span>
+      <h3>Security & Access</h3>
+      <ul>
+        <li>Role-based access control</li>
+        <li>Module-level permissions</li>
+        <li>Location-based rights</li>
+        <li>JWT session management</li>
+        <li>Audit trail logging</li>
+      </ul>
+    </div>
+    <div class="card">
+      <span class="icon">📈</span>
+      <h3>Reporting & Dashboard</h3>
+      <ul>
+        <li>Real-time dashboard widgets</li>
+        <li>Debtor analytics & graphs</li>
+        <li>Stock movement reports</li>
+        <li>Financial summaries</li>
+        <li>Excel export capability</li>
+      </ul>
+    </div>
+  </div>
+  <span class="slide-number">7</span>
+</div>
+
+<!-- SLIDE 8: Customer Portal -->
+<div class="slide content-slide">
+  <div class="slide-title">Customer Portal — New Feature</div>
+  <div class="divider"></div>
+  <div class="highlight-box">
+    <p style="font-size: 17px;">
+      A self-service portal enabling registered debtors/customers to <strong>browse inventory</strong>, 
+      <strong>place orders online</strong>, and <strong>view their invoice history</strong> — 
+      extending the system beyond internal staff use.
+    </p>
+  </div>
+  <div class="two-col" style="margin-top: 25px;">
+    <div class="card">
+      <h3>Authentication Flow</h3>
+      <ul>
+        <li>Dual login: Staff (username/location) vs Customer (Gmail)</li>
+        <li>Customer registers using debtor code from sales rep</li>
+        <li>bcrypt password hashing (separate from staff VB6 hash)</li>
+        <li>Dedicated JWT cookie (<code style="color: #6c63ff;">customer_jwt</code>)</li>
+        <li>cDebtorCode as unique customer identifier (PK)</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Portal Features</h3>
+      <ul>
+        <li>Product catalog with search & category filter</li>
+        <li>Shopping cart with quantity management</li>
+        <li>Order placement (auto-creates invoice)</li>
+        <li>Order history with status tracking</li>
+        <li>Customer profile with credit limit info</li>
+      </ul>
+    </div>
+  </div>
+  <span class="slide-number">8</span>
+</div>
+
+<!-- SLIDE 9: Use Case Diagram -->
+<div class="slide content-slide">
+  <div class="slide-title">Use Case Diagram</div>
+  <div class="divider"></div>
+  <div class="img-placeholder" style="min-height: 400px;">
+    <img src="3tier architecture drawio-Usecase diagram.drawio.png" alt="Use case diagram" />
+  </div>
+  <span class="slide-number">9</span>
+</div>
+
+<!-- SLIDE 10: Sequence Diagram -->
+<div class="slide content-slide">
+  <div class="slide-title">Sequence Diagram — Invoice Creation</div>
+  <div class="divider"></div>
+  <div class="img-placeholder" style="min-height: 400px;">
+    <img src="3tier architecture drawio-Sequence diagram.drawio.png" alt="Sequence diagram for invoice creation" />
+  </div>
+  <span class="slide-number">10</span>
+</div>
+
+<!-- SLIDE 11: Security -->
+<div class="slide content-slide">
+  <div class="slide-title">Security Implementation</div>
+  <div class="divider"></div>
+  <div class="two-col">
+    <div>
+      <div class="card">
+        <h3>Authentication</h3>
+        <ul>
+          <li>Staff: VB6-compatible XOR encryption (legacy)</li>
+          <li>Customer: bcrypt hashing (modern)</li>
+          <li>JWT tokens (HS256) with 24-hour expiry</li>
+          <li>HttpOnly cookies (SameSite=None)</li>
+          <li>Separate sessions: <code style="color: #6c63ff;">jwt</code>, <code style="color: #6c63ff;">cashier_jwt</code>, <code style="color: #6c63ff;">customer_jwt</code></li>
+        </ul>
+      </div>
+    </div>
+    <div>
+      <div class="card">
+        <h3>Authorization (RBAC)</h3>
+        <ul>
+          <li><code style="color: #6c63ff;">tblSecurityRights</code>: Module → Screen → Event hierarchy</li>
+          <li>Rights assigned to users OR security groups via <code style="color: #6c63ff;">tblSecurityGroupRelation</code></li>
+          <li><code style="color: #6c63ff;">INVENTORYWEB</code> module for all web permissions</li>
+          <li><code style="color: #6c63ff;">tblUserLocation</code> for location-based restrictions</li>
+          <li>3-tier middleware chain in Fiber (AuthRequired, CashierAuth, CustomerAuth)</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="card" style="margin-top: 20px;">
+    <h3>Data Protection</h3>
+    <div class="tech-stack">
+      <span class="tag">CORS Whitelist</span>
+      <span class="tag">SQL Injection Prevention (Parameterized SPs)</span>
+      <span class="tag">HTTPS Ready</span>
+      <span class="tag">Input Validation</span>
+      <span class="tag">XSS Protection</span>
+    </div>
+  </div>
+  <span class="slide-number">11</span>
+</div>
+
+<!-- SLIDE 12: Screenshots / Demo -->
+<div class="slide content-slide" style="display: none;">
+  <div class="slide-title">UI Screenshots</div>
+  <div class="divider"></div>
+  <div class="two-col">
+    <div class="img-placeholder">
+      [ INSERT LOGIN PAGE SCREENSHOT ]<br/>
+      <small>Dual-mode login (Staff / Customer)</small>
+    </div>
+    <div class="img-placeholder">
+      [ INSERT DASHBOARD SCREENSHOT ]<br/>
+      <small>Staff dashboard with analytics</small>
+    </div>
+  </div>
+  <div class="two-col" style="margin-top: 20px;">
+    <div class="img-placeholder">
+      [ INSERT CUSTOMER PORTAL SCREENSHOT ]<br/>
+      <small>Product browsing & cart</small>
+    </div>
+    <div class="img-placeholder">
+      [ INSERT INVENTORY LIST SCREENSHOT ]<br/>
+      <small>Item management view</small>
+    </div>
+  </div>
+  <span class="slide-number">12</span>
+</div>
+
+<!-- SLIDE 13: Testing -->
+<div class="slide content-slide">
+  <div class="slide-title">Testing & Validation</div>
+  <div class="divider"></div>
+  <div class="card">
+    <table>
+      <thead>
+        <tr>
+          <th>Test Category</th>
+          <th>Method</th>
+          <th>Tools</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Unit Testing</td>
+          <td>Individual function validation</td>
+          <td>Go testing, Jest</td>
+          <td style="color: #4caf50;">✅ Passed</td>
+        </tr>
+        <tr>
+          <td>API Testing</td>
+          <td>Endpoint validation & edge cases</td>
+          <td>Postman collections</td>
+          <td style="color: #4caf50;">✅ Passed</td>
+        </tr>
+        <tr>
+          <td>Integration Testing</td>
+          <td>Frontend-Backend-DB flow</td>
+          <td>Manual + Automated</td>
+          <td style="color: #4caf50;">✅ Passed</td>
+        </tr>
+        <tr>
+          <td>User Acceptance</td>
+          <td>Real user workflow testing</td>
+          <td>End users</td>
+          <td style="color: #4caf50;">✅ Passed</td>
+        </tr>
+        <tr>
+          <td>Security Testing</td>
+          <td>Auth bypass, injection tests</td>
+          <td>Manual penetration</td>
+          <td style="color: #4caf50;">✅ Passed</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <span class="slide-number">13</span>
+</div>
+
+<!-- SLIDE 14: Links & Resources -->
+<div class="slide content-slide">
+  <div class="slide-title">Links & Resources</div>
+  <div class="divider"></div>
+  
+  <div class="link-placeholder">
+    🔗 <strong>GitHub Repository:</strong><br/>
+    https://github.com/muh4mmedh/ISDN.git
+  </div>
+  <div class="highlight-box" style="margin-top: 20px;">
+    <p style="font-size: 15px; line-height: 1.7; color: #d8d8f3;">
+      <strong>Security Notice:</strong> The <code style="color: #6c63ff;">.env</code> file and full database structure are intentionally not shared publicly.
+      This solution is constructed using the same production-grade approach applied across our other systems that have gone live, and exposing sensitive configuration or schema details would create security vulnerabilities.
+      These details can be provided privately upon authorized request.
+    </p>
+  </div>
+  <span class="slide-number">14</span>
+</div>
+
+<!-- SLIDE 15: Thank You -->
+<div class="slide title-slide">
+  <div style="font-size: 28px; color: #6c63ff; margin-bottom: 20px;">Thank You</div>
+  <div class="slide-title">Questions & Discussion</div>
+  <div class="divider" style="margin: 20px auto;"></div>
+  <div class="student-info">
+    <strong>Mohammed Rahumatulla</strong><br/>
+    Student ID: E121374<br/>
+    Email (University): e121374@esoft.acadamy<br/>
+    Email (Personal): muhammedhspam@gmail.com<br/>
+    Phone: +94 76 090 3997<br/><br/>
+    ISDN Management System<br/>
+    Esoft Metro Campus
+  </div>
+  <span class="slide-number">15</span>
+</div>
+
+</div>
+<script>
+  (function () {
+    const slides = Array.from(document.querySelectorAll('.slide'));
+    const counter = document.getElementById('slideCounter');
+    const prevBtn = document.getElementById('prevSlideBtn');
+    const nextBtn = document.getElementById('nextSlideBtn');
+    let currentSlide = 0;
+
+    function normalizeIndex(index) {
+      if (index < 0) return 0;
+      if (index >= slides.length) return slides.length - 1;
+      return index;
+    }
+
+    function updateCounter() {
+      counter.textContent = (currentSlide + 1) + ' / ' + slides.length;
+    }
+
+    function showSlide(index) {
+      const nextIndex = normalizeIndex(index);
+      slides[currentSlide].classList.remove('active');
+      currentSlide = nextIndex;
+      slides[currentSlide].classList.add('active');
+      slides[currentSlide].scrollTop = 0;
+      updateCounter();
+      history.replaceState(null, '', '#slide-' + (currentSlide + 1));
+    }
+
+    function goNext() {
+      showSlide(currentSlide + 1);
+    }
+
+    function goPrev() {
+      showSlide(currentSlide - 1);
+    }
+
+    const hashMatch = window.location.hash.match(/^#slide-(\d+)$/);
+    const initialFromHash = hashMatch ? parseInt(hashMatch[1], 10) - 1 : 0;
+    slides[0].classList.add('active');
+    showSlide(initialFromHash);
+
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'ArrowRight' || e.key === 'PageDown') {
+        e.preventDefault();
+        goNext();
+      } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+        e.preventDefault();
+        goPrev();
+      } else if (e.key === 'Home') {
+        e.preventDefault();
+        showSlide(0);
+      } else if (e.key === 'End') {
+        e.preventDefault();
+        showSlide(slides.length - 1);
+      }
+    });
+
+    prevBtn.addEventListener('click', goPrev);
+    nextBtn.addEventListener('click', goNext);
+  })();
+</script>
+</body>
+</html>
